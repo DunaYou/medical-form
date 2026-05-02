@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>醫師業務責任保險 — 要保資料填寫</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans TC','微軟正黑體',sans-serif;background:#f5f7fa;font-size:14px;color:#222;padding-bottom:60px;}
+
+header{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;padding:16px 20px 14px;text-align:center;}
+header h1{font-size:16px;font-weight:700;letter-spacing:.5px;}
+header p{font-size:11px;opacity:.85;margin-top:4px;line-height:1.6;}
+
+.container{max-width:560px;margin:0 auto;padding:16px 14px;}
+
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:14px;overflow:hidden;}
+.card-title{background:#f8f0f0;border-bottom:2px solid #e74c3c;padding:10px 14px;font-size:12px;font-weight:700;color:#c0392b;display:flex;align-items:center;gap:6px;}
+.card-title .num{background:#c0392b;color:#fff;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;}
+.card-body{padding:14px;}
+
+.field{margin-bottom:12px;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:11px;color:#555;margin-bottom:4px;font-weight:600;}
+.field label .req{color:#e74c3c;margin-left:2px;}
+.field input,.field select,.field textarea{
+  width:100%;border:1px solid #d5d8dc;border-radius:6px;padding:9px 11px;
+  font-size:13px;color:#222;font-family:inherit;background:#fff;
+  transition:border-color .2s,box-shadow .2s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,.1);
+}
+.field textarea{resize:vertical;min-height:60px;}
+.field-row{display:flex;gap:8px;}
+.field-row .field{flex:1;}
+
+.radio-group,.check-group{display:flex;flex-wrap:wrap;gap:8px 16px;padding:4px 0;}
+.radio-group label,.check-group label{display:flex;align-items:center;gap:5px;font-size:13px;color:#333;cursor:pointer;font-weight:400;}
+.radio-group input,.check-group input{width:auto;margin:0;}
+
+.hint{font-size:10px;color:#999;margin-top:3px;}
+.sub-field{background:#fafafa;border:1px solid #eee;border-radius:6px;padding:10px 12px;margin-top:8px;}
+.sub-field .field:last-child{margin-bottom:0;}
+
+/* CC */
+.cc-section{margin-top:10px;}
+.cc-warning{background:#fff8e1;border:1px solid #f9ca24;border-radius:6px;padding:8px 10px;font-size:11px;color:#7d6608;margin-bottom:10px;line-height:1.6;}
+
+/* Result */
+.result-card{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.08);margin-bottom:14px;overflow:hidden;display:none;}
+.result-card.show{display:block;}
+.result-header{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:12px 14px;font-size:13px;font-weight:700;text-align:center;}
+.result-body{padding:14px;}
+.code-box{background:#1e1e2e;color:#a6e3a1;font-family:monospace;font-size:11px;border-radius:8px;padding:12px;word-break:break-all;line-height:1.7;max-height:100px;overflow-y:auto;margin-bottom:10px;border:2px solid #2ecc71;}
+.btn-copy{background:#27ae60;color:#fff;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:700;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-copy:hover{background:#219a52;}
+.btn-copy.copied{background:#7f8c8d;}
+.result-tip{font-size:11px;color:#555;line-height:1.8;margin-top:10px;background:#f0faf4;border:1px solid #a9dfbf;border-radius:6px;padding:8px 10px;}
+
+/* Submit */
+.btn-submit{background:linear-gradient(135deg,#c0392b,#e74c3c);color:#fff;border:none;padding:14px;border-radius:10px;font-size:14px;font-weight:700;width:100%;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 12px rgba(192,57,43,.3);}
+.btn-submit:hover{background:linear-gradient(135deg,#a93226,#c0392b);}
+.btn-regenerate{background:#eee;color:#444;border:none;padding:9px 14px;border-radius:6px;font-size:12px;cursor:pointer;margin-top:8px;width:100%;}
+
+/* Progress */
+.progress-bar{display:flex;padding:12px 14px;background:#fff;border-bottom:1px solid #eee;gap:4px;justify-content:center;}
+.prog-step{flex:1;max-width:80px;text-align:center;}
+.prog-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 auto 3px;border:2px solid #ddd;color:#aaa;}
+.prog-dot.active{background:#c0392b;border-color:#c0392b;color:#fff;}
+.prog-dot.done{background:#27ae60;border-color:#27ae60;color:#fff;}
+.prog-label{font-size:9px;color:#aaa;}
+.prog-label.active{color:#c0392b;font-weight:700;}
+
+@media(max-width:400px){
+  header h1{font-size:14px;}
+  .field input,.field select,.field textarea{font-size:12px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>醫師業務責任保險 — 要保資料填寫</h1>
+  <p>由您的業務顧問提供，填完後產生授權碼傳回給業務顧問即可<br>資料不會上傳至任何伺服器</p>
+</header>
+
+<div class="container">
+
+<!-- ── 一、個人基本資料 ── -->
+<div class="card">
+  <div class="card-title"><div class="num">一</div>個人基本資料</div>
+  <div class="card-body">
+    <div class="field">
+      <label>姓名 <span class="req">*</span></label>
+      <input id="c_name" placeholder="陳ＯＯ">
+    </div>
+    <div class="field">
+      <label>性別 <span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="c_gender" value="男"> 男</label>
+        <label><input type="radio" name="c_gender" value="女"> 女</label>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>身分證字號 <span class="req">*</span></label>
+        <input id="c_id" placeholder="A123456789" maxlength="10">
+      </div>
+      <div class="field">
+        <label>出生年月日（民國）<span class="req">*</span></label>
+        <input id="c_birth" placeholder="73/10/28">
+      </div>
+    </div>
+    <div class="field">
+      <label>通訊地址 <span class="req">*</span></label>
+      <input id="c_addr" placeholder="台北市XXXXXXXXXX">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>聯絡電話（手機）<span class="req">*</span></label>
+        <input id="c_tel" placeholder="0912345678" type="tel">
+      </div>
+      <div class="field">
+        <label>Email <span class="req">*</span></label>
+        <input id="c_email" placeholder="xxx@gmail.com" type="email">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 二、執業資訊 ── -->
+<div class="card">
+  <div class="card-title"><div class="num">二</div>執業資訊</div>
+  <div class="card-body">
+    <div class="field">
+      <label>執業診所名稱 <span class="req">*</span></label>
+      <textarea id="c_clinics" placeholder="多間請用頓號分隔，例：OO診所、XX診所"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>執業科別 <span class="req">*</span></label>
+        <select id="c_specialty">
+          <option value="">請選擇</option>
+          <optgroup label="內科系">
+            <option>一般內科</option><option>家庭醫學科</option><option>皮膚科</option>
+            <option>病理科</option><option>神經內科</option><option>胸腔內科</option>
+            <option>復健科</option><option>感染控制科</option><option>職業醫學科</option>
+          </optgroup>
+          <optgroup label="其他專科系">
+            <option>小兒科</option><option>耳鼻喉科</option><option>眼科</option>
+            <option>精神科</option><option>核醫科</option><option>放射線科</option>
+            <option>新陳代謝科</option><option>腫瘤科</option><option>疼痛科</option>
+            <option>腎臟科</option><option>腸胃科</option><option>心臟科</option>
+            <option>皮膚美容外科</option>
+          </optgroup>
+          <optgroup label="外科系">
+            <option>一般外科</option><option>骨科</option><option>小兒外科</option>
+            <option>胸腔外科</option><option>心臟血管</option><option>大腸直腸外科</option>
+            <option>整型外科</option><option>神經外科</option><option>泌尿科</option>
+            <option>急診醫學科</option><option value="醫學美容">醫學美容</option>
+          </optgroup>
+          <option>婦產科</option><option>麻醉科</option>
+          <option>牙醫（植牙）</option><option>牙醫（無植牙）</option><option>中醫</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>醫師證書號碼 <span class="req">*</span></label>
+        <input id="c_doc_lic" placeholder="醫字123456">
+      </div>
+    </div>
+    <div class="field">
+      <label>學歷 <span class="req">*</span></label>
+      <input id="c_edu" placeholder="台大醫學系">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>執業年資（年）<span class="req">*</span></label>
+        <input id="c_exp_years" type="number" placeholder="5" min="0">
+      </div>
+      <div class="field">
+        <label>每日平均診數 <span class="req">*</span></label>
+        <input id="c_daily_pts" type="number" placeholder="30" min="0">
+      </div>
+      <div class="field">
+        <label>每月手術次數 <span class="req">*</span></label>
+        <input id="c_monthly_ops" type="number" placeholder="0" min="0">
+      </div>
+    </div>
+    <div class="field">
+      <label>是否取得專科執照？<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="c_specialist" value="是" onchange="toggleCSpec()"> 是</label>
+        <label><input type="radio" name="c_specialist" value="否" onchange="toggleCSpec()"> 否</label>
+      </div>
+    </div>
+    <div id="c_spec_field" style="display:none" class="sub-field">
+      <div class="field">
+        <label>專科證號</label>
+        <input id="c_spec_id" placeholder="X專醫字123456">
+      </div>
+    </div>
+    <div class="field">
+      <label>使用下列醫療器材設備？（可複選，無則不勾）</label>
+      <div class="check-group">
+        <label><input type="checkbox" class="c_equip" value="拉皮"> 拉皮</label>
+        <label><input type="checkbox" class="c_equip" value="雷射"> 雷射</label>
+        <label><input type="checkbox" class="c_equip" value="電波"> 電波</label>
+        <label><input type="checkbox" id="c_eq_other_chk" class="c_equip" value="其他" onchange="toggleCEqOther()"> 其他</label>
+      </div>
+      <input type="text" id="c_eq_other_txt" placeholder="請說明" style="display:none;margin-top:6px;width:100%;border:1px solid #d5d8dc;border-radius:6px;padding:8px 10px;font-size:13px;">
+    </div>
+  </div>
+</div>
+
+<!-- ── 三、投保歷史 ── -->
+<div class="card">
+  <div class="card-title"><div class="num">三</div>投保歷史</div>
+  <div class="card-body">
+    <div class="field">
+      <label>是否曾投保過醫師業務責任保險？<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="c_prev_ins" value="是" onchange="toggleCPrevIns()"> 是</label>
+        <label><input type="radio" name="c_prev_ins" value="否" onchange="toggleCPrevIns()"> 否</label>
+      </div>
+    </div>
+    <div id="c_prev_ins_fields" style="display:none" class="sub-field">
+      <div class="field">
+        <label>前保險公司名稱</label>
+        <input id="c_prev_co" placeholder="新安東京">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>保險期間（起）民國年/月/日</label>
+          <input id="c_prev_s" placeholder="113/1/21">
+        </div>
+        <div class="field">
+          <label>保險期間（迄）民國年/月/日</label>
+          <input id="c_prev_e" placeholder="114/1/21">
+        </div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:12px;">
+      <label>最近兩年內是否有賠償請求？<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="c_claim" value="是" onchange="toggleCClaim()"> 是</label>
+        <label><input type="radio" name="c_claim" value="否" checked onchange="toggleCClaim()"> 否</label>
+      </div>
+    </div>
+    <div id="c_claim_detail_field" style="display:none" class="sub-field">
+      <div class="field">
+        <label>請簡述</label>
+        <input id="c_claim_detail" placeholder="請簡述賠償請求情形">
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:12px;">
+      <label>最近兩年內是否有醫療爭議紀錄？<span class="req">*</span></label>
+      <div class="radio-group">
+        <label><input type="radio" name="c_dispute" value="是" onchange="toggleCDispute()"> 是</label>
+        <label><input type="radio" name="c_dispute" value="否" checked onchange="toggleCDispute()"> 否</label>
+      </div>
+    </div>
+    <div id="c_dispute_detail_field" style="display:none" class="sub-field">
+      <div class="field">
+        <label>請簡述</label>
+        <input id="c_dispute_detail" placeholder="請簡述爭議情形">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 四、繳費方式 ── -->
+<div class="card">
+  <div class="card-title"><div class="num">四</div>繳費方式</div>
+  <div class="card-body">
+    <div class="field">
+      <div class="radio-group">
+        <label><input type="radio" name="c_pay_method" value="信用卡" checked onchange="toggleCPayMethod()"> 信用卡</label>
+        <label><input type="radio" name="c_pay_method" value="繳費單" onchange="toggleCPayMethod()"> 繳費單（轉帳 / 匯款）</label>
+      </div>
+    </div>
+    <div id="c_cc_fields" class="cc-section">
+      <div class="cc-warning">⚠️ 信用卡只能刷<b>醫師本人名下的卡</b>，不可使用診所或第三人信用卡。</div>
+      <div class="field">
+        <label>發卡機構</label>
+        <div class="radio-group">
+          <label><input type="radio" name="c_cc_brand" value="VISA" checked> VISA</label>
+          <label><input type="radio" name="c_cc_brand" value="Master"> Master</label>
+          <label><input type="radio" name="c_cc_brand" value="JCB"> JCB</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>銀行名稱</label>
+        <input id="c_cc_bank" placeholder="富邦">
+      </div>
+      <div class="field">
+        <label>信用卡卡號（16 碼）</label>
+        <input id="c_cc_num" placeholder="1234 5678 1234 5678" maxlength="19" oninput="fmtCCNum()" inputmode="numeric">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>到期年（西元後 2 碼）</label>
+          <input id="c_cc_yr" placeholder="32" maxlength="2" inputmode="numeric">
+        </div>
+        <div class="field">
+          <label>到期月</label>
+          <input id="c_cc_mo" placeholder="07" maxlength="2" inputmode="numeric">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 產生授權碼按鈕 ── -->
+<button class="btn-submit" onclick="generateCode()">產生授權碼</button>
+
+<!-- ── 授權碼結果 ── -->
+<div class="result-card" id="resultCard">
+  <div class="result-header">✅ 授權碼產生完成</div>
+  <div class="result-body">
+    <div class="code-box" id="codeDisplay"></div>
+    <button class="btn-copy" id="copyBtn" onclick="copyCode()">
+      <span>📋</span><span id="copyText">複製授權碼</span>
+    </button>
+    <button class="btn-regenerate" onclick="scrollToTop()">↑ 回上方修改資料</button>
+    <div class="result-tip">
+      ✅ 請將上方授權碼<b>複製後傳給業務顧問</b>（LINE / Email 皆可）<br>
+      🔒 此授權碼不含任何可辨識個人身分的明文資訊<br>
+      📝 業務顧問將使用此授權碼自動填入要保書，無需手動輸入
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function cg(id){ return (document.getElementById(id)||{}).value||''; }
+function cr(name){ const e=document.querySelector(`input[name="${name}"]:checked`); return e?e.value:''; }
+
+function toggleCSpec(){
+  document.getElementById('c_spec_field').style.display = cr('c_specialist')==='是'?'block':'none';
+}
+function toggleCEqOther(){
+  document.getElementById('c_eq_other_txt').style.display = document.getElementById('c_eq_other_chk').checked?'block':'none';
+}
+function toggleCPrevIns(){
+  document.getElementById('c_prev_ins_fields').style.display = cr('c_prev_ins')==='是'?'block':'none';
+}
+function toggleCClaim(){
+  document.getElementById('c_claim_detail_field').style.display = cr('c_claim')==='是'?'block':'none';
+}
+function toggleCDispute(){
+  document.getElementById('c_dispute_detail_field').style.display = cr('c_dispute')==='是'?'block':'none';
+}
+function toggleCPayMethod(){
+  document.getElementById('c_cc_fields').style.display = cr('c_pay_method')==='信用卡'?'block':'none';
+}
+function fmtCCNum(){
+  let v = cg('c_cc_num').replace(/\D/g,'').slice(0,16);
+  v = v.replace(/(.{4})/g,'$1 ').trim();
+  document.getElementById('c_cc_num').value = v;
+}
+function scrollToTop(){ window.scrollTo({top:0,behavior:'smooth'}); }
+
+function validate(){
+  const required = [
+    {id:'c_name', label:'姓名'},
+    {id:'c_id', label:'身分證字號'},
+    {id:'c_birth', label:'出生年月日'},
+    {id:'c_addr', label:'通訊地址'},
+    {id:'c_tel', label:'聯絡電話'},
+    {id:'c_email', label:'Email'},
+    {id:'c_clinics', label:'執業診所名稱'},
+    {id:'c_specialty', label:'執業科別'},
+    {id:'c_doc_lic', label:'醫師證書號碼'},
+    {id:'c_edu', label:'學歷'},
+    {id:'c_exp_years', label:'執業年資'},
+    {id:'c_daily_pts', label:'每日平均診數'},
+    {id:'c_monthly_ops', label:'每月手術次數'},
+  ];
+  for(const f of required){
+    if(!cg(f.id).trim()){ alert(`請填寫「${f.label}」`); document.getElementById(f.id).focus(); return false; }
+  }
+  if(!cr('c_gender')){ alert('請選擇性別'); return false; }
+  if(!cr('c_specialist')){ alert('請選擇是否取得專科執照'); return false; }
+  if(!cr('c_prev_ins')){ alert('請選擇是否曾投保'); return false; }
+  return true;
+}
+
+function generateCode(){
+  if(!validate()) return;
+
+  const equip = [...document.querySelectorAll('.c_equip:checked')].map(e=>e.value);
+  if(equip.includes('其他')){
+    const idx = equip.indexOf('其他');
+    const txt = cg('c_eq_other_txt').trim();
+    if(txt) equip[idx] = '其他：' + txt;
+  }
+
+  const data = {
+    _v: 1,
+    ins_name:     cg('c_name'),
+    ins_gender:   cr('c_gender'),
+    ins_id:       cg('c_id'),
+    ins_birth:    cg('c_birth'),
+    ins_addr:     cg('c_addr'),
+    ins_tel:      cg('c_tel'),
+    ins_email:    cg('c_email'),
+    clinics:      cg('c_clinics'),
+    specialty:    cg('c_specialty'),
+    doc_lic:      cg('c_doc_lic'),
+    edu:          cg('c_edu'),
+    exp_years:    cg('c_exp_years'),
+    daily_pts:    cg('c_daily_pts'),
+    monthly_ops:  cg('c_monthly_ops'),
+    specialist:   cr('c_specialist'),
+    spec_id:      cg('c_spec_id'),
+    equip:        equip.join('、') || '無',
+    prev_ins:     cr('c_prev_ins') || '否',
+    prev_co:      cg('c_prev_co'),
+    prev_s:       cg('c_prev_s'),
+    prev_e:       cg('c_prev_e'),
+    claim:        cr('c_claim') || '否',
+    claim_detail: cg('c_claim_detail'),
+    dispute:      cr('c_dispute') || '否',
+    dispute_detail: cg('c_dispute_detail'),
+    pay_method:   cr('c_pay_method') || '信用卡',
+    cc_brand:     cr('c_cc_brand') || 'VISA',
+    cc_bank:      cg('c_cc_bank'),
+    cc_num:       cg('c_cc_num'),
+    cc_yr:        cg('c_cc_yr'),
+    cc_mo:        cg('c_cc_mo'),
+  };
+
+  // 前綴 MEDI: 讓要保書網站識別格式
+  const code = 'MEDI:' + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+
+  document.getElementById('codeDisplay').textContent = code;
+  const rc = document.getElementById('resultCard');
+  rc.classList.add('show');
+  document.getElementById('copyBtn').classList.remove('copied');
+  document.getElementById('copyText').textContent = '複製授權碼';
+  rc.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function copyCode(){
+  const code = document.getElementById('codeDisplay').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    document.getElementById('copyBtn').classList.add('copied');
+    document.getElementById('copyText').textContent = '✓ 已複製！';
+    setTimeout(()=>{
+      document.getElementById('copyBtn').classList.remove('copied');
+      document.getElementById('copyText').textContent = '複製授權碼';
+    }, 3000);
+  }).catch(()=>{
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = code;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    document.getElementById('copyText').textContent = '✓ 已複製！';
+  });
+}
+</script>
+</body>
+</html>
