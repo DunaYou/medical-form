@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 <title>醫師業務責任保險 — 要保資料填寫</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -52,10 +53,14 @@ header p{font-size:11px;opacity:.85;margin-top:4px;line-height:1.6;}
 .result-card.show{display:block;}
 .result-header{background:linear-gradient(135deg,#27ae60,#2ecc71);color:#fff;padding:12px 14px;font-size:13px;font-weight:700;text-align:center;}
 .result-body{padding:14px;}
-.code-box{background:#1e1e2e;color:#a6e3a1;font-family:monospace;font-size:11px;border-radius:8px;padding:12px;word-break:break-all;line-height:1.7;max-height:100px;overflow-y:auto;margin-bottom:10px;border:2px solid #2ecc71;}
-.btn-copy{background:#27ae60;color:#fff;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:700;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
-.btn-copy:hover{background:#219a52;}
-.btn-copy.copied{background:#7f8c8d;}
+.qr-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 0;}
+.qr-wrap canvas,.qr-wrap img{border:6px solid #fff;box-shadow:0 2px 12px rgba(0,0,0,.15);border-radius:6px;}
+.qr-hint{font-size:12px;color:#555;text-align:center;line-height:1.7;}
+.qr-hint b{color:#27ae60;}
+.btn-save-qr{background:#27ae60;color:#fff;border:none;padding:11px;border-radius:8px;font-size:13px;font-weight:700;width:100%;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-save-qr:hover{background:#219a52;}
+.code-toggle{text-align:center;font-size:11px;color:#aaa;margin-top:6px;cursor:pointer;text-decoration:underline;}
+.code-box{background:#1e1e2e;color:#a6e3a1;font-family:monospace;font-size:10px;border-radius:8px;padding:10px;word-break:break-all;line-height:1.7;max-height:80px;overflow-y:auto;margin-top:8px;display:none;}
 .result-tip{font-size:11px;color:#555;line-height:1.8;margin-top:10px;background:#f0faf4;border:1px solid #a9dfbf;border-radius:6px;padding:8px 10px;}
 
 /* Submit */
@@ -316,19 +321,23 @@ header p{font-size:11px;opacity:.85;margin-top:4px;line-height:1.6;}
 <!-- ── 產生授權碼按鈕 ── -->
 <button class="btn-submit" onclick="generateCode()">產生授權碼</button>
 
-<!-- ── 授權碼結果 ── -->
+<!-- ── QR Code 結果 ── -->
 <div class="result-card" id="resultCard">
-  <div class="result-header">✅ 授權碼產生完成</div>
+  <div class="result-header">✅ 填寫完成，請將 QR Code 傳給業務顧問</div>
   <div class="result-body">
+    <div class="qr-wrap">
+      <div id="qrCanvas"></div>
+      <div class="qr-hint">
+        📸 請<b>截圖或長按儲存</b>這張 QR Code<br>
+        傳給業務顧問（LINE / Email 皆可）
+      </div>
+    </div>
+    <div class="code-toggle" onclick="toggleCode()">看不到 QR Code？點這裡改用文字授權碼</div>
     <div class="code-box" id="codeDisplay"></div>
-    <button class="btn-copy" id="copyBtn" onclick="copyCode()">
-      <span>📋</span><span id="copyText">複製授權碼</span>
-    </button>
     <button class="btn-regenerate" onclick="scrollToTop()">↑ 回上方修改資料</button>
     <div class="result-tip">
-      ✅ 請將上方授權碼<b>複製後傳給業務顧問</b>（LINE / Email 皆可）<br>
-      🔒 此授權碼不含任何可辨識個人身分的明文資訊<br>
-      📝 業務顧問將使用此授權碼自動填入要保書，無需手動輸入
+      🔒 資料不會上傳至任何伺服器，只存在這張 QR Code 裡<br>
+      📝 業務顧問掃描後所有欄位自動填入，無需手動輸入
     </div>
   </div>
 </div>
@@ -399,71 +408,56 @@ function generateCode(){
     if(txt) equip[idx] = '其他：' + txt;
   }
 
-  const data = {
-    _v: 1,
-    ins_name:     cg('c_name'),
-    ins_gender:   cr('c_gender'),
-    ins_id:       cg('c_id'),
-    ins_birth:    cg('c_birth'),
-    ins_addr:     cg('c_addr'),
-    ins_tel:      cg('c_tel'),
-    ins_email:    cg('c_email'),
-    clinics:      cg('c_clinics'),
-    specialty:    cg('c_specialty'),
-    doc_lic:      cg('c_doc_lic'),
-    edu:          cg('c_edu'),
-    exp_years:    cg('c_exp_years'),
-    daily_pts:    cg('c_daily_pts'),
-    monthly_ops:  cg('c_monthly_ops'),
-    specialist:   cr('c_specialist'),
-    spec_id:      cg('c_spec_id'),
-    equip:        equip.join('、') || '無',
-    prev_ins:     cr('c_prev_ins') || '否',
-    prev_co:      cg('c_prev_co'),
-    prev_s:       cg('c_prev_s'),
-    prev_e:       cg('c_prev_e'),
-    claim:        cr('c_claim') || '否',
-    claim_detail: cg('c_claim_detail'),
-    dispute:      cr('c_dispute') || '否',
-    dispute_detail: cg('c_dispute_detail'),
-    pay_method:   cr('c_pay_method') || '信用卡',
-    cc_brand:     cr('c_cc_brand') || 'VISA',
-    cc_bank:      cg('c_cc_bank'),
-    cc_num:       cg('c_cc_num'),
-    cc_yr:        cg('c_cc_yr'),
-    cc_mo:        cg('c_cc_mo'),
+  // 短 key 格式（v:2），移除空值以縮短字串
+  const raw = {
+    v:2,
+    n:  cg('c_name'),      g:  cr('c_gender'),
+    id: cg('c_id'),        b:  cg('c_birth'),
+    a:  cg('c_addr'),      t:  cg('c_tel'),
+    e:  cg('c_email'),     c:  cg('c_clinics'),
+    sp: cg('c_specialty'), dl: cg('c_doc_lic'),
+    ed: cg('c_edu'),       ey: cg('c_exp_years'),
+    dp: cg('c_daily_pts'), mo: cg('c_monthly_ops'),
+    si: cr('c_specialist'),
+    sid:cg('c_spec_id'),
+    eq: equip.join('、'),
+    pi: cr('c_prev_ins')||'否',
+    pc: cg('c_prev_co'), ps: cg('c_prev_s'), pe: cg('c_prev_e'),
+    cl: cr('c_claim')||'否',   cd: cg('c_claim_detail'),
+    di: cr('c_dispute')||'否', dd: cg('c_dispute_detail'),
+    pm: cr('c_pay_method')||'信用卡',
+    cb: cr('c_cc_brand')||'',  ck: cg('c_cc_bank'),
+    cn: cg('c_cc_num'),        cy: cg('c_cc_yr'), cm: cg('c_cc_mo'),
   };
+  // 移除空字串、undefined、預設否值（節省 QR Code 容量）
+  const data = {};
+  for(const [k,v] of Object.entries(raw)){
+    if(v !== '' && v !== undefined) data[k] = v;
+  }
 
-  // 前綴 MEDI: 讓要保書網站識別格式
   const code = 'MEDI:' + btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-
   document.getElementById('codeDisplay').textContent = code;
+
+  // 生成 QR Code
+  const qrDiv = document.getElementById('qrCanvas');
+  qrDiv.innerHTML = '';
+  new QRCode(qrDiv, {
+    text: code,
+    width: 220,
+    height: 220,
+    colorDark: '#1a1a2e',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
+
   const rc = document.getElementById('resultCard');
   rc.classList.add('show');
-  document.getElementById('copyBtn').classList.remove('copied');
-  document.getElementById('copyText').textContent = '複製授權碼';
   rc.scrollIntoView({behavior:'smooth', block:'start'});
 }
 
-function copyCode(){
-  const code = document.getElementById('codeDisplay').textContent;
-  navigator.clipboard.writeText(code).then(()=>{
-    document.getElementById('copyBtn').classList.add('copied');
-    document.getElementById('copyText').textContent = '✓ 已複製！';
-    setTimeout(()=>{
-      document.getElementById('copyBtn').classList.remove('copied');
-      document.getElementById('copyText').textContent = '複製授權碼';
-    }, 3000);
-  }).catch(()=>{
-    // fallback
-    const ta = document.createElement('textarea');
-    ta.value = code;
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
-    document.getElementById('copyText').textContent = '✓ 已複製！';
-  });
+function toggleCode(){
+  const box = document.getElementById('codeDisplay');
+  box.style.display = box.style.display === 'block' ? 'none' : 'block';
 }
 </script>
 </body>
